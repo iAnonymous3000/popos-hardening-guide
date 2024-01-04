@@ -1,6 +1,6 @@
 # Pop!_OS Desktop Hardening Guide
 
-This guide covers security hardening steps for beginner and intermediate Pop!_OS Linux desktop users. [Pop!_OS](https://pop.system76.com) is an Ubuntu-based distribution from System76, focusing on reliability, speed, and security. 
+This guide covers security hardening steps for beginner and intermediate Pop!_OS Linux desktop users. [Pop!_OS](https://pop.system76.com) is a Ubuntu-based distribution from System76, focusing on reliability, speed, and security. 
 
 ## Introduction
 
@@ -52,6 +52,25 @@ Related Tutorials:
 
 - [Backing Up Your System](https://support.system76.com/articles/backup-files)
 - [Updating System Firmware](https://support.system76.com/articles/system-firmware)
+
+
+
+Keep accurate time using NTS (Network Time Security):   
+
+```
+# Review for at least 4 NTS peers, no clear IPs  
+curl -o /tmp/chrony.conf https://raw.githubusercontent.com/GrapheneOS/infrastructure/main/chrony.conf  
+
+# Apply after inspection passes  
+sudo cp /etc/chrony.conf /etc/chrony.conf.orig 
+sudo curl -o /etc/chrony.conf https://raw.githubusercontent.com/GrapheneOS/infrastructure/main/chrony.conf   
+
+# Verify with 4+ sources prefixed by *
+sudo systemctl restart chrony  
+chronyc sourcestats   
+```
+
+
 
 ## User Accounts   
 
