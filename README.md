@@ -10,6 +10,7 @@ Pop!_OS balances usability with security. However, production deployments requir
 - Disk encryption  
 - Access controls
 - Frequent software updates
+- Application sandboxing
 
 This guide helps harden Pop!_OS desktops by covering those key areas.  
 
@@ -35,6 +36,7 @@ sudo apt update
 sudo apt dist-upgrade
 ```
 
+- Regularly review update logs to understand changes and potential issues.
 - Check [Pop!_OS site](https://pop.system76.com/) weekly for updates   
 - Backup user data before major OS upgrades  
 - Reboot after kernel updates
@@ -84,15 +86,20 @@ autologin-user-timeout=600
 
 Audit and remove unneeded accounts.
 
+For remote access, set up passwordless SSH authentication using public keys instead of password authentication.
+
 ## Service Hardening   
 
 **Unnecessary Services**: Debug, unused hardware, obsolete protocols  
+**Examples of Unnecessary Services**: Bluetooth, printing, sound, Thunderbolt, debug logging, SNMP, NFS
+
 
 Disable services:
 
 ```
 sudo systemctl list-unit-files --state=enabled 
 sudo systemctl disable <service>
+sudo systemctl disable bluetooth.service cups.service pulseaudio.service
 ```
 
 Prevent restarting:  
@@ -113,11 +120,16 @@ sudo ufw default deny incoming
 sudo ufw default allow outgoing
 ```
 
+Common Unnecessary Open Ports: NETBIOS - 139, SNMP - 161, mDNS - 5353
+
 Limit exposed ports:  
 
 ```
 sudo nmap localhost  
 sudo ufw deny <unneeded_port>
+sudo ufw deny 139
+sudo ufw deny 161 
+sudo ufw deny 5353
 ```  
 
 When on untrusted networks, use a commercial VPN with:
@@ -145,19 +157,68 @@ sudo cryptsetup luksOpen /dev/<disk> name
 - Backup data before enabling encryption
 - Record passphrases/keys offline  
 
+For user data, create an encrypted home partition separate from the OS:
+```
+sudo cryptsetup luksFormat /dev/<home_partition>
+```
+
+Consider performance impacts and recovery strategies for encrypted data.
+
+*Irrecoverable if encryption keys are lost*  
+
+
 Related Resource:
   
 - [Pop!_OS Disk Encryption](https://support.system76.com/articles/advanced-luks)
 
-*Irrecoverable if encryption keys are lost*  
 
 ## Additional Hardening  
 
-- Enable Secure Boot for boot validation 
-- Install security tools like antivirus, IDS 
-- Check logs/alerts for intrusion signs
-- Keep system and firmware updated  
+- Enable Secure Boot for boot validation.
+- Use application sandboxing tools like Firejail.
+- Install security tools like antivirus, IDS.
+- Antivirus: ClamAV (opensource antivirus engine for detecting various malicious threats. It's a standard choice for Linux users due to its effectiveness and flexibility)
+
+#### Installation:
+
+```bash
+sudo apt install clamav clamav-daemon
+```
+
+#### Running a Scan:
+
+Execute a recursive scan with:
+
+```bash
+sudo clamscan -r /path/to/scan
+```
+
+#### Automating Virus Definitions Updates:
+
+Enable automatic updates for virus definitions:
+
+```bash
+sudo systemctl enable clamav-freshclam.service
+```
+
+#### Considerations:
+
+- Schedule scans during low-usage times to minimize impact on system performance.
+- Regularly review scan logs for potential threats or false positives.
+------------------------------------------------------------------------------------------
+
+- Check logs/alerts for intrusion signs.
+- Keep system and firmware updated.
 - Perform security audits/training
+- Consider hardware security features like TPMs.
+- Refine BIOS/UEFI settings for security.
+- Manage user privileges through sudoers configuration for refined access control.
+
+Auditing Tools: Lynis, CIS-CAT Benchmark
+```
+sudo apt install lynis
+lynis audit system
+```
 
 ## General Tips 
 
