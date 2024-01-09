@@ -193,7 +193,14 @@ Related Resource:
 
 ## Additional Hardening  
 
-- Enable Secure Boot for boot validation.
+- **Important Note on Secure Boot**
+> 
+> As of the current release, Pop!_OS does not support Secure Boot. Enabling Secure Boot may interfere with the boot process, leading to potential issues with accessing the BIOS setup.
+> 
+> **Recommendation**:
+> - Users should **disable Secure Boot** when using Pop!_OS to ensure a smooth operating experience.
+> - For the most up-to-date information and detailed instructions, please refer to [System76's official documentation on installing Pop!_OS](https://support.system76.com/articles/install-pop).
+
 - Use application sandboxing tools like Firejail.
 - Install security tools like antivirus, IDS.
 - Antivirus: ClamAV (opensource antivirus engine for detecting various malicious threats. It's a standard choice for Linux users due to its effectiveness and flexibility)
